@@ -1,3 +1,5 @@
+[![CI](https://github.com/sargas/auction-sniper/actions/workflows/main.yml/badge.svg)](https://github.com/sargas/auction-sniper/actions/workflows/main.yml) [![codecov](https://codecov.io/gh/sargas/auction-sniper/branch/main/graph/badge.svg?token=GVDP24HXLG)](https://codecov.io/gh/sargas/auction-sniper)
+
 This is a implementation of the example code in [Growing Object-Oriented Software Guided by Tests](http://www.growing-object-oriented-software.com/) with a few key differences:
 
 - Gradle replaces Ant
