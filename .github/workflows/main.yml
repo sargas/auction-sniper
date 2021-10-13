@@ -27,7 +27,13 @@ jobs:
         with:
           run: ./gradlew test
 
-      - uses: actions/upload-artifact@v2
+      - name: Save Test Results
+        uses: actions/upload-artifact@v2
         with:
           name: test-reports
           path: build/reports/tests
+
+      - name: Upload Code Coverage
+        uses: codecov/codecov-action@v2
+        with:
+          files: build/reports/jacoco/test/jacocoTestReport.xml

@@ -4,6 +4,8 @@ plugins {
 
     application
 
+    jacoco
+
     id("org.openjfx.javafxplugin") version "0.0.10"
 }
 
@@ -54,4 +56,12 @@ dependencies {
 
 tasks.getByName<Test>("test") {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    reports {
+        xml.required.set(true)
+    }
 }
