@@ -10,6 +10,7 @@ This is a implementation of the example code in [Growing Object-Oriented Softwar
 - AssertJ generally replaces hamcrest matchers
 - JavaFx/TornadoFX replaces Swing
 - TestFx replaces WindowLicker
+- Automated CI pipeline with GitHub Actions
 
 
 TO-DO
