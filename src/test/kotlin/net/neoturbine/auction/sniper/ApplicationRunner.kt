@@ -13,8 +13,8 @@ class ApplicationRunner(private val auctionServer: FakeAuctionServer) {
         driver.showsSniperStatus(SniperStatus.JOINING)
     }
 
-    fun showsSniperHasLostAuction() {
-        driver.showsSniperStatus(SniperStatus.LOST)
+    fun showsSniperHasStatus(status: SniperStatus) {
+        driver.showsSniperStatus(status)
     }
 
     fun stop() {

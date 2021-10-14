@@ -1,5 +1,7 @@
 package net.neoturbine.auction.sniper
 
+import org.jxmpp.jid.EntityBareJid
+import org.jxmpp.jid.impl.JidCreate
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.wait.strategy.Wait
 
@@ -19,6 +21,7 @@ class FakeAuctionServer {
 
     val sniperUserName = SNIPER_ID
     val sniperPassword = SNIPER_PASSWORD
+    val sniperId: EntityBareJid = JidCreate.entityBareFrom("$sniperUserName@localhost")
 
     fun userNameForItem(itemId: String) = "auction-$itemId"
     val passwordForItem = SNIPER_PASSWORD

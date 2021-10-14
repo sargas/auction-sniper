@@ -23,6 +23,9 @@ class FakeAuction(val itemId: String, private val auctionServer: FakeAuctionServ
         .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
         .build())
 
+    private val chat = ChatManager.getInstanceFor(connection)
+        .chatWith(JidCreate.entityBareFrom("${auctionServer.sniperUserName}@localhost"))
+
     fun startSellingItem() {
         auctionServer.createAccountForItem(itemId)
 
@@ -32,17 +35,29 @@ class FakeAuction(val itemId: String, private val auctionServer: FakeAuctionServ
     }
 
     fun hasReceivedJoinRequestFromSniper() {
-        SimpleMessageListener.receivesAMessage()
+        SimpleMessageListener.receivesAMessage {
+            assertThat(body).isEqualTo(joinCommand())
+            assertThat(from.asBareJid()).isEqualTo(auctionServer.sniperId)
+        }
     }
 
     fun announceClosed() {
-        ChatManager.getInstanceFor(connection)
-            .chatWith(JidCreate.entityBareFrom("${auctionServer.sniperUserName}@localhost"))
-            .send("")
+        chat.send(bidClosedMessage())
     }
 
     fun stop() {
         connection.disconnect()
+    }
+
+    fun reportPrice(highestBid: Int, incrementalBid: Int, winner: String) {
+        chat.send(currentPriceMessage(currentPrice = highestBid, incrementalBid = incrementalBid, bidder = winner))
+    }
+
+    fun hasReceivedBid(amount: Int, jid: CharSequence) {
+        SimpleMessageListener.receivesAMessage {
+            assertThat(body).isEqualTo(bidCommand(amount))
+            assertThat(from.asBareJid()).isEqualTo(jid)
+        }
     }
 }
 
@@ -51,7 +66,11 @@ object SimpleMessageListener: IncomingChatMessageListener {
     override fun newIncomingMessage(from: EntityBareJid?, message: Message?, chat: Chat?) {
         messages += message
     }
-    fun receivesAMessage() {
-        assertThat(messages.poll(5, TimeUnit.SECONDS)).`as`("Expecting to get a message").isNotNull
+
+    fun receivesAMessage(messageAsserter: Message.() -> Unit) {
+        val message = messages.poll(5, TimeUnit.SECONDS)
+
+        assertThat(message).`as`("Expecting to get a message").isNotNull
+        message!!.messageAsserter()
     }
 }

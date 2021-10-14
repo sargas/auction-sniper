@@ -7,9 +7,10 @@ class EndToEndStepDefinitions : En {
     init {
         val auctionServer = FakeAuctionServer()
         lateinit var auction: FakeAuction
-        val application = ApplicationRunner(auctionServer)
+        lateinit var application : ApplicationRunner
 
         Before { ->
+            application = ApplicationRunner(auctionServer)
             auctionServer.start()
         }
 
@@ -30,10 +31,20 @@ class EndToEndStepDefinitions : En {
             auction.announceClosed()
         }
 
+        When(
+            "the auction reports another bidder has the highest bid at \${int} with an increment of \${int}"
+        ) { highestBid: Int, increment: Int ->
+            auction.reportPrice(highestBid, increment, "other bidder")
+        }
+
+        Then("the sniper places a bid") {
+            auction.hasReceivedBid(1098, auctionServer.sniperId)
+        }
+
         Then(
-            "we show the auction for item {string} as {string}"
-        ) { itemId: String, auctionStatus: String ->
-            application.showsSniperHasLostAuction()
+            "we show the auction for item {string} as \"{}\""
+        ) { itemId: String, auctionStatus: SniperStatus ->
+            application.showsSniperHasStatus(auctionStatus)
         }
 
         After { -> auction.stop() }

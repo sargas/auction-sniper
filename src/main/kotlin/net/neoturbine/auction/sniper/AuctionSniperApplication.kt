@@ -16,31 +16,62 @@ fun main(args: Array<String>) {
 }
 
 class AuctionSniperApplication: App(RootView::class) {
+    private lateinit var connection: XMPPTCPConnection
+    private var rootView: RootView? = null
+
     override fun init() {
-        joinAuction(
-            connection = connectTo(parameters.raw[0], parameters.raw[1].toInt(), parameters.raw[2], parameters.raw[3]),
-            itemId = parameters.raw[4]
-        )
+        connection = connectTo(parameters.raw[0], parameters.raw[1].toInt(), parameters.raw[2], parameters.raw[3])
     }
-    private fun joinAuction(connection: XMPPConnection, itemId: String) {
-        val chatManager = ChatManager.getInstanceFor(connection)
-        val auctionJid = JidCreate.entityBareFrom("auction-$itemId@localhost")
-        chatManager.addIncomingListener { from, message, chat ->
-            if (!from.equals(auctionJid)) {
-                return@addIncomingListener
-            }
+
+    override fun onBeforeShow(view: UIComponent) {
+        rootView = view as RootView
+        runAsync {
+            joinAuction(
+                connection = connection,
+                itemId = parameters.raw[4],
+                ui = SniperStateDisplayer()
+            )
+        }
+    }
+
+    override fun stop() {
+        super.stop()
+        connection.disconnect()
+    }
+
+    inner class SniperStateDisplayer: SniperListener {
+        private fun showStatus(status: SniperStatus) {
             runLater {
-                outputLabel?.text = SniperStatus.LOST.name
+                rootView?.outputLabel?.text = status.name
             }
         }
-        val chat = chatManager.chatWith(auctionJid)
-        chat.send("")
+
+        override fun sniperLost() {
+            showStatus(SniperStatus.LOST)
+        }
+
+        override fun sniperBidding() {
+            showStatus(SniperStatus.BIDDING)
+        }
     }
 }
 
-private var outputLabel: Label? = null
+private fun joinAuction(connection: XMPPConnection, itemId: String, ui: SniperListener) {
+    val chatManager = ChatManager.getInstanceFor(connection)
+    val auctionJid = JidCreate.entityBareFrom("auction-$itemId@localhost")
+    val auction = XMPPAuction(chatManager.chatWith(auctionJid))
+
+    chatManager.addIncomingListener(
+        AuctionMessageTranslator(
+            AuctionSniper(auction, ui)
+        )
+    )
+    auction.join()
+}
 
 class RootView: View() {
+    var outputLabel: Label? = null
+
     override val root = vbox {
         label(SniperStatus.JOINING.name).apply {
             this.id = STATUS_ID
@@ -49,11 +80,7 @@ class RootView: View() {
     }
 }
 
-enum class SniperStatus {
-    JOINING, LOST
-}
-
-private fun connectTo(hostname: String, port: Int, username: String, password: String): XMPPConnection {
+private fun connectTo(hostname: String, port: Int, username: String, password: String): XMPPTCPConnection {
     val connection = XMPPTCPConnection(
         XMPPTCPConnectionConfiguration.builder()
             .setUsernameAndPassword(username, password)
