@@ -37,6 +37,11 @@ dependencies {
     implementation("org.igniterealtime.smack:smack-extensions:${Versions.smack}")
     implementation("org.igniterealtime.smack:smack-tcp:${Versions.smack}")
 
+    implementation(platform("org.apache.logging.log4j:log4j-bom:${Versions.log4j}"))
+    implementation("org.apache.logging.log4j:log4j-api")
+    implementation("org.apache.logging.log4j:log4j-core")
+    implementation("org.apache.logging.log4j:log4j-slf4j-impl")
+
     testImplementation(platform("org.junit:junit-bom:${Versions.junit}"))
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.junit.platform:junit-platform-suite")

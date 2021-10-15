@@ -9,6 +9,7 @@ public final class Versions {
 	public static final String javaFxPlugin = "0.0.10";
 	public static final String junit = "5.8.1";
 	public static final String kotlin = "1.5.31";
+	public static final String log4j = "2.14.1";
 	public static final String mockK = "1.12.0";
 	public static final String smack = "4.4.3";
 	public static final String testContainers = "1.16.0";
