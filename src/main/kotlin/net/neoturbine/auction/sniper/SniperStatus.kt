@@ -1,5 +1,5 @@
 package net.neoturbine.auction.sniper
 
 enum class SniperStatus {
-    JOINING, BIDDING, LOST
+    JOINING, BIDDING, LOST, WINNING, WON
 }

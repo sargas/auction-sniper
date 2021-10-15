@@ -53,6 +53,14 @@ class AuctionSniperApplication: App(RootView::class) {
         override fun sniperBidding() {
             showStatus(SniperStatus.BIDDING)
         }
+
+        override fun sniperWinning() {
+            showStatus(SniperStatus.WINNING)
+        }
+
+        override fun sniperWon() {
+            showStatus(SniperStatus.WON)
+        }
     }
 }
 
@@ -63,6 +71,7 @@ private fun joinAuction(connection: XMPPConnection, itemId: String, ui: SniperLi
 
     chatManager.addIncomingListener(
         AuctionMessageTranslator(
+            connection.user.asEntityBareJid(),
             AuctionSniper(auction, ui)
         )
     )

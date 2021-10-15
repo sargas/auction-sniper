@@ -32,17 +32,22 @@ class EndToEndStepDefinitions : En {
         }
 
         When(
-            "the auction reports another bidder has the highest bid at \${int} with an increment of \${int}"
-        ) { highestBid: Int, increment: Int ->
-            auction.reportPrice(highestBid, increment, "other bidder")
+            "the auction reports {} have/has the highest bid at {int} USD with an increment of {int} USD"
+        ) { bidderName: String, highestBid: Int, increment: Int ->
+            val bidder = when(bidderName) {
+                "we" -> auctionServer.sniperId.toString()
+                "another bidder" -> "someone@else"
+                else -> error("Unknown bidder: $bidderName")
+            }
+            auction.reportPrice(highestBid, increment, bidder)
         }
 
-        Then("the sniper places a bid") {
-            auction.hasReceivedBid(1098, auctionServer.sniperId)
+        Then("the sniper places a bid for {int} USD") { bidAmount: Int ->
+            auction.hasReceivedBid(bidAmount, auctionServer.sniperId)
         }
 
         Then(
-            "we show the auction for item {string} as \"{}\""
+            "we show the auction for item {string} as {}"
         ) { itemId: String, auctionStatus: SniperStatus ->
             application.showsSniperHasStatus(auctionStatus)
         }
