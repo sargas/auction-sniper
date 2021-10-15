@@ -1,12 +1,9 @@
 plugins {
-    kotlin("jvm") version "1.5.31"
-    java
-
+    kotlin("jvm") version Versions.kotlin
     application
 
     jacoco
-
-    id("org.openjfx.javafxplugin") version "0.0.10"
+    id("org.openjfx.javafxplugin") version Versions.javaFxPlugin
 }
 
 group = "net.neoturbine"
@@ -22,7 +19,7 @@ application {
 
 kotlin {
     jvmToolchain {
-        (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of(16)) // "8"
+        (this as JavaToolchainSpec).languageVersion.set(JavaLanguageVersion.of(Versions.java))
     }
 }
 
@@ -31,29 +28,33 @@ javafx {
 }
 
 dependencies {
-    implementation(kotlin("stdlib", "1.5.31"))
+    implementation(kotlin("stdlib-jdk8"))
+    implementation(kotlin("reflect"))
 
-    implementation("no.tornado:tornadofx:1.7.20")
+    implementation("no.tornado:tornadofx:${Versions.tornadoFx}")
 
+    implementation("org.igniterealtime.smack:smack-java8:${Versions.smack}")
+    implementation("org.igniterealtime.smack:smack-extensions:${Versions.smack}")
+    implementation("org.igniterealtime.smack:smack-tcp:${Versions.smack}")
 
-    implementation("org.igniterealtime.smack:smack-java8:4.4.3")
-    implementation("org.igniterealtime.smack:smack-extensions:4.4.3")
-    implementation("org.igniterealtime.smack:smack-tcp:4.4.3")
+    testImplementation(platform("org.junit:junit-bom:${Versions.junit}"))
+    testImplementation("org.junit.jupiter:junit-jupiter-api")
+    testImplementation("org.junit.platform:junit-platform-suite")
+    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.1")
-    testImplementation("org.junit.platform:junit-platform-suite:1.8.1")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
+    testImplementation("org.assertj:assertj-core:${Versions.assertJ}")
 
-    testImplementation("org.assertj:assertj-core:3.21.0")
+    testImplementation(platform("io.cucumber:cucumber-bom:${Versions.cucumber}"))
+    testImplementation("io.cucumber:cucumber-java8")
+    testImplementation("io.cucumber:cucumber-junit-platform-engine")
 
-    testImplementation("io.cucumber:cucumber-java8:6.11.0")
-    testImplementation("io.cucumber:cucumber-junit-platform-engine:6.11.0")
+    testImplementation(platform("org.testcontainers:testcontainers-bom:${Versions.testContainers}"))
+    testImplementation("org.testcontainers:testcontainers")
 
-    testImplementation("org.testcontainers:testcontainers:1.16.0")
-    testImplementation("org.testfx:testfx-core:4.0.16-alpha")
-    testImplementation("org.testfx:testfx-junit5:4.0.16-alpha")
+    testImplementation("org.testfx:testfx-core:${Versions.testFx}")
+    testImplementation("org.testfx:testfx-junit5:${Versions.testFx}")
 
-    testImplementation("io.mockk:mockk:1.12.0")
+    testImplementation("io.mockk:mockk:${Versions.mockK}")
 }
 
 tasks.getByName<Test>("test") {
