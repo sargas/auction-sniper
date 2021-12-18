@@ -4,6 +4,7 @@ plugins {
 
     jacoco
     id("org.openjfx.javafxplugin") version Versions.javaFxPlugin
+    id("com.github.ben-manes.versions") version Versions.versionsPlugin
 }
 
 group = "net.neoturbine"
