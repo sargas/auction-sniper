@@ -42,10 +42,12 @@ dependencies {
     implementation("org.apache.logging.log4j:log4j-api")
     implementation("org.apache.logging.log4j:log4j-core")
     implementation("org.apache.logging.log4j:log4j-slf4j-impl")
+    implementation("org.apache.logging.log4j:log4j-jul")
 
     testImplementation(platform("org.junit:junit-bom:${Versions.junit}"))
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("org.junit.platform:junit-platform-suite")
+    testImplementation("org.junit.jupiter:junit-jupiter-params")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 
     testImplementation("org.assertj:assertj-core:${Versions.assertJ}")
@@ -61,6 +63,10 @@ dependencies {
     testImplementation("org.testfx:testfx-junit5:${Versions.testFx}")
 
     testImplementation("io.mockk:mockk:${Versions.mockK}")
+
+    testImplementation("org.awaitility:awaitility-kotlin:${Versions.awaitility}")
+
+    testImplementation("com.github.javafaker:javafaker:${Versions.javaFaker}")
 }
 
 tasks.getByName<Test>("test") {

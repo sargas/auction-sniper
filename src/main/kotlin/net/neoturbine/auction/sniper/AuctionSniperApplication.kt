@@ -1,6 +1,6 @@
 package net.neoturbine.auction.sniper
 
-import javafx.scene.control.Label
+import javafx.collections.ObservableList
 import org.jivesoftware.smack.ConnectionConfiguration
 import org.jivesoftware.smack.XMPPConnection
 import org.jivesoftware.smack.chat2.ChatManager
@@ -9,7 +9,7 @@ import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration
 import org.jxmpp.jid.impl.JidCreate
 import tornadofx.*
 
-const val STATUS_ID = "auctionStatusId"
+const val AUCTION_TABLE = "auctionTableId"
 
 fun main(args: Array<String>) {
     launch<AuctionSniperApplication>(args)
@@ -25,11 +25,12 @@ class AuctionSniperApplication: App(RootView::class) {
 
     override fun onBeforeShow(view: UIComponent) {
         rootView = view as RootView
+        val ui = rootView ?: throw IllegalStateException("")
         runAsync {
             joinAuction(
                 connection = connection,
                 itemId = parameters.raw[4],
-                ui = SniperStateDisplayer()
+                ui = ui
             )
         }
     }
@@ -38,29 +39,11 @@ class AuctionSniperApplication: App(RootView::class) {
         super.stop()
         connection.disconnect()
     }
+}
 
-    inner class SniperStateDisplayer: SniperListener {
-        private fun showStatus(status: SniperStatus) {
-            runLater {
-                rootView?.outputLabel?.text = status.name
-            }
-        }
-
-        override fun sniperLost() {
-            showStatus(SniperStatus.LOST)
-        }
-
-        override fun sniperBidding() {
-            showStatus(SniperStatus.BIDDING)
-        }
-
-        override fun sniperWinning() {
-            showStatus(SniperStatus.WINNING)
-        }
-
-        override fun sniperWon() {
-            showStatus(SniperStatus.WON)
-        }
+private class TornadoFxSniperListener(private val listener: SniperListener) : SniperListener {
+    override fun sniperStateChange(sniperSnapshot: SniperSnapshot) {
+        runLater { listener.sniperStateChange(sniperSnapshot) }
     }
 }
 
@@ -69,22 +52,37 @@ private fun joinAuction(connection: XMPPConnection, itemId: String, ui: SniperLi
     val auctionJid = JidCreate.entityBareFrom("auction-$itemId@localhost")
     val auction = XMPPAuction(chatManager.chatWith(auctionJid))
 
+    val sniper = AuctionSniper(itemId, auction, TornadoFxSniperListener(ui))
     chatManager.addIncomingListener(
         AuctionMessageTranslator(
             connection.user.asEntityBareJid(),
-            AuctionSniper(auction, ui)
+            sniper
         )
     )
     auction.join()
 }
 
-class RootView: View() {
-    var outputLabel: Label? = null
+class RootView: View(), SniperListener {
+    private var currentSnapshots: ObservableList<SniperSnapshot> =
+        mutableListOf<SniperSnapshot>().asObservable()
 
     override val root = vbox {
-        label(SniperStatus.JOINING.name).apply {
-            this.id = STATUS_ID
-            outputLabel = this
+        tableview(currentSnapshots) {
+            id = AUCTION_TABLE
+            readonlyColumn("Item ID", SniperSnapshot::itemId)
+            readonlyColumn("Status", SniperSnapshot::status) {
+                cellFormat { text = it.name }
+            }
+            readonlyColumn("Last Price", SniperSnapshot::lastPrice)
+            readonlyColumn("Bid Price", SniperSnapshot::lastBid)
+        }
+    }
+
+    override fun sniperStateChange(sniperSnapshot: SniperSnapshot) {
+        if (currentSnapshots.isEmpty()) {
+            currentSnapshots += sniperSnapshot
+        } else {
+            currentSnapshots[0] = sniperSnapshot
         }
     }
 }

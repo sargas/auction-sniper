@@ -47,9 +47,17 @@ class EndToEndStepDefinitions : En {
         }
 
         Then(
-            "we show the auction for item {string} as {}"
-        ) { itemId: String, auctionStatus: SniperStatus ->
-            application.showsSniperHasStatus(auctionStatus)
+            "we show the auction for item {string} with status {}"
+        ) {
+                itemId: String, auctionStatus: SniperStatus ->
+            application.showsBidSnapshot(itemId, auctionStatus)
+        }
+
+        Then(
+            "we show the auction for item {string} as {} having the winning bid {int} with our last bid {int}"
+        ) {
+            itemId: String, auctionStatus: SniperStatus, lastPrice: Int, lastBid: Int ->
+            application.showsBidSnapshot(itemId, auctionStatus, lastPrice, lastBid)
         }
 
         After { -> auction.stop() }

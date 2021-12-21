@@ -1,33 +1,38 @@
 package net.neoturbine.auction.sniper
 
 import net.neoturbine.auction.sniper.AuctionEventListener.PriceSource
-import java.util.concurrent.atomic.AtomicBoolean
 
-class AuctionSniper(private val auction: Auction, private val listener: SniperListener) : AuctionEventListener {
-    private val isWinning: AtomicBoolean = AtomicBoolean(false)
+class AuctionSniper(
+    itemId: String,
+    private val auction: Auction,
+    private val listener: SniperListener) : AuctionEventListener {
+    private var sniperSnapshot = SniperSnapshot.joining(itemId)
+
+    init {
+        notifyChange()
+    }
 
     override fun auctionClosed() {
-        if (isWinning.get()) {
-            listener.sniperWon()
-        } else {
-            listener.sniperLost()
-        }
+        sniperSnapshot = sniperSnapshot.closed()
+        notifyChange()
     }
 
     override fun currentPrice(currentPrice: Int, increment: Int, bidder: PriceSource) {
-        isWinning.set(bidder == PriceSource.FromSniper)
-        if (isWinning.get()) {
-            listener.sniperWinning()
+        if (bidder == PriceSource.FromSniper) {
+            sniperSnapshot = sniperSnapshot.winning(currentPrice)
         } else {
-            listener.sniperBidding()
-            auction.bid(currentPrice + increment)
+            val bid = currentPrice + increment
+            sniperSnapshot = sniperSnapshot.bidding(currentPrice, bid)
+            auction.bid(bid)
         }
+        notifyChange()
+    }
+
+    private fun notifyChange() {
+        listener.sniperStateChange(sniperSnapshot)
     }
 }
 
 interface SniperListener {
-    fun sniperLost()
-    fun sniperBidding()
-    fun sniperWinning()
-    fun sniperWon()
+    fun sniperStateChange(sniperSnapshot: SniperSnapshot)
 }

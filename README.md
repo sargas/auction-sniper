@@ -20,10 +20,11 @@ TO-DO
 -----
 - [x] Single item - join, lose without bidding
 - [x] Single item - join, bid and lose
-- [ ] Single item - join, bid and win
-- [ ] Single item - show price details (UI)
+- [x] Single item - join, bid and win
+- [x] Single item - show price details (UI)
 - [ ] Multiple Items
 - [ ] Add New Items in UI
 - [ ] Stop Bidding at stop price
 - [ ] translator - invalid message from Auction
 - [ ] translator - incorrect message version
+- [ ] auction - handle `XMPPException` on send

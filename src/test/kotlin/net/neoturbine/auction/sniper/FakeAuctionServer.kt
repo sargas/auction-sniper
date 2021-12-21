@@ -12,7 +12,7 @@ private const val SNIPER_ID = "sniper"
 private const val SNIPER_PASSWORD = "sniper"
 
 class FakeAuctionServer {
-    private val xmppServer: KGenericContainer = KGenericContainer(EJABBERD_IMAGE)
+    private val xmppServer = GenericContainer(EJABBERD_IMAGE)
         .withExposedPorts(EJABBERD_PORT)
         .waitingFor(Wait.forLogMessage(".*Start accepting TCP connections at .::.:5222 for ejabberd_c2s.*\\n", 1))
 
@@ -43,7 +43,3 @@ class FakeAuctionServer {
     }
 
 }
-
-
-// From https://github.com/testcontainers/testcontainers-java/issues/318#issuecomment-290692749
-class KGenericContainer(imageName: String) : GenericContainer<KGenericContainer>(imageName)

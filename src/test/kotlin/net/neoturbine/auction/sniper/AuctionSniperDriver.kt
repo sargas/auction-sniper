@@ -1,10 +1,11 @@
 package net.neoturbine.auction.sniper
 
 import javafx.application.Application
+import org.awaitility.kotlin.await
+import org.awaitility.kotlin.untilAsserted
 import org.testfx.api.FxRobot
 import org.testfx.api.FxToolkit
-import org.testfx.util.WaitForAsyncUtils.waitFor
-import java.util.concurrent.TimeUnit
+import org.testfx.assertions.api.Assertions.assertThat
 
 class AuctionSniperDriver: FxRobot() {
     private var application: Application? = null
@@ -19,7 +20,15 @@ class AuctionSniperDriver: FxRobot() {
         FxToolkit.cleanupApplication(application)
     }
 
-    fun showsSniperStatus(sniperStatus: SniperStatus) {
-        waitFor(5, TimeUnit.SECONDS) { lookup("#$STATUS_ID")?.queryLabeled()?.text == sniperStatus.name }
+    fun showsSniperStatus(
+        itemId: String,
+        expectedStatus: SniperStatus,
+        expectedLastPrice: Int? = null,
+        expectedLastBid: Int? = null
+    ) {
+        await untilAsserted {
+            assertThat(lookup("#$AUCTION_TABLE")?.queryTableView<Map<String, String>>())
+                .containsRow(itemId, expectedStatus, expectedLastPrice, expectedLastBid)
+        }
     }
 }

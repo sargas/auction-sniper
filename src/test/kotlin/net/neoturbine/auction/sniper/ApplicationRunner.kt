@@ -10,15 +10,15 @@ class ApplicationRunner(private val auctionServer: FakeAuctionServer) {
             auctionServer.sniperPassword,
             auction.itemId
         )
-        driver.showsSniperStatus(SniperStatus.JOINING)
-    }
-
-    fun showsSniperHasStatus(status: SniperStatus) {
-        driver.showsSniperStatus(status)
+        driver.showsSniperStatus(auction.itemId, SniperStatus.JOINING)
     }
 
     fun stop() {
         driver.close()
+    }
+
+    fun showsBidSnapshot(itemId: String, expectedStatus: SniperStatus, expectedLastPrice: Int? = null, expectedLastBid: Int? = null) {
+        driver.showsSniperStatus(itemId, expectedStatus, expectedLastPrice, expectedLastBid)
     }
 
 }

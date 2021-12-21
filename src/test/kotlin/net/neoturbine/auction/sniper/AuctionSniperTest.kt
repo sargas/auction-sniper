@@ -1,27 +1,32 @@
 package net.neoturbine.auction.sniper
 
+import com.github.javafaker.Faker
 import io.mockk.confirmVerified
 import io.mockk.junit5.MockKExtension
 import io.mockk.mockk
-import io.mockk.verifyAll
 import io.mockk.verifySequence
 import net.neoturbine.auction.sniper.AuctionEventListener.PriceSource
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+
+private val faker = Faker()
+
+private val itemId = faker.number().digits(3)
 
 @ExtendWith(MockKExtension::class)
 internal class AuctionSniperTest {
     private val auction = mockk<Auction>(relaxed = true)
     private val listener = mockk<SniperListener>(relaxed = true)
 
-    private val sniper = AuctionSniper(auction, listener)
+    private val sniper = AuctionSniper(itemId, auction, listener)
 
     @Test
     fun reportsLostWhenAuctionClosedImmediately() {
         sniper.auctionClosed()
 
-        verifyAll {
-            listener.sniperLost()
+        verifySequence {
+            listener.sniperStateChange(SniperSnapshot(itemId, SniperStatus.JOINING))
+            listener.sniperStateChange(SniperSnapshot(itemId, SniperStatus.LOST))
         }
     }
 
@@ -31,8 +36,9 @@ internal class AuctionSniperTest {
         sniper.auctionClosed()
 
         verifySequence {
-            listener.sniperBidding()
-            listener.sniperLost()
+            listener.sniperStateChange(SniperSnapshot(itemId, SniperStatus.JOINING))
+            listener.sniperStateChange(SniperSnapshot(itemId, SniperStatus.BIDDING, 111, 333))
+            listener.sniperStateChange(SniperSnapshot(itemId, SniperStatus.LOST, 111, 333))
         }
         confirmVerified(listener)
     }
@@ -43,22 +49,25 @@ internal class AuctionSniperTest {
         sniper.auctionClosed()
 
         verifySequence {
-            listener.sniperWinning()
-            listener.sniperWon()
+            listener.sniperStateChange(SniperSnapshot(itemId, SniperStatus.JOINING))
+            listener.sniperStateChange(SniperSnapshot(itemId, SniperStatus.WINNING, 111, 111))
+            listener.sniperStateChange(SniperSnapshot(itemId, SniperStatus.WON, 111, 111))
         }
         confirmVerified(listener)
     }
 
     @Test
     fun bidHigherAndReportsBiddingWhenNewPriceArrives() {
-        val amount = 1001
+        val price = 1001
         val increment = 25
+        val bid = price + increment
 
-        sniper.currentPrice(amount, increment, PriceSource.FromOtherBidder)
+        sniper.currentPrice(price, increment, PriceSource.FromOtherBidder)
 
-        verifyAll {
-            listener.sniperBidding()
-            auction.bid(amount + increment)
+        verifySequence {
+            listener.sniperStateChange(SniperSnapshot(itemId, SniperStatus.JOINING))
+            auction.bid(bid)
+            listener.sniperStateChange(SniperSnapshot(itemId, SniperStatus.BIDDING, price, bid))
         }
     }
 
@@ -66,8 +75,9 @@ internal class AuctionSniperTest {
     fun reportsIsWinningWhenCurrentPriceComesFromSniper() {
         sniper.currentPrice(111, 222, PriceSource.FromSniper)
 
-        verifyAll {
-            listener.sniperWinning()
+        verifySequence {
+            listener.sniperStateChange(SniperSnapshot(itemId, SniperStatus.JOINING))
+            listener.sniperStateChange(SniperSnapshot(itemId, SniperStatus.WINNING, 111, 111))
         }
     }
 }
