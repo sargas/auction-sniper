@@ -1,6 +1,5 @@
 package net.neoturbine.auction.sniper
 
-import javafx.collections.ObservableList
 import org.jivesoftware.smack.ConnectionConfiguration
 import org.jivesoftware.smack.XMPPConnection
 import org.jivesoftware.smack.chat2.ChatManager
@@ -15,6 +14,9 @@ fun main(args: Array<String>) {
     launch<AuctionSniperApplication>(args)
 }
 
+/**
+ * Corresponds to the Main class in Growing Object-Oriented Software
+ */
 class AuctionSniperApplication: App(RootView::class) {
     private lateinit var connection: XMPPTCPConnection
     private var rootView: RootView? = null
@@ -26,15 +28,17 @@ class AuctionSniperApplication: App(RootView::class) {
     override fun onBeforeShow(view: UIComponent) {
         rootView = view as RootView
         val ui = rootView ?: throw IllegalStateException("")
-        parameters.raw.drop(4).forEach { itemId: String ->
-            runAsync {
-                joinAuction(
-                    connection = connection,
-                    itemId = itemId,
-                    ui = ui
-                )
+        ui.addUserRequestListener(object : UserRequestListener {
+            override fun joinAuction(itemId: String) {
+                runAsync {
+                    joinAuction(
+                        connection = connection,
+                        itemId = itemId,
+                        ui = ui
+                    )
+                }
             }
-        }
+        })
     }
 
     override fun stop() {
@@ -63,32 +67,6 @@ private fun joinAuction(connection: XMPPConnection, itemId: String, ui: SniperLi
         )
     ))
     auction.join()
-}
-
-class RootView: View(), SniperListener {
-    private var currentSnapshots: ObservableList<SniperSnapshot> =
-        mutableListOf<SniperSnapshot>().asObservable()
-
-    override val root = vbox {
-        tableview(currentSnapshots) {
-            id = AUCTION_TABLE
-            readonlyColumn("Item ID", SniperSnapshot::itemId)
-            readonlyColumn("Status", SniperSnapshot::status) {
-                cellFormat { text = it.name }
-            }
-            readonlyColumn("Last Price", SniperSnapshot::lastPrice)
-            readonlyColumn("Bid Price", SniperSnapshot::lastBid)
-        }
-    }
-
-    override fun sniperStateChange(sniperSnapshot: SniperSnapshot) {
-        val existingIndex = currentSnapshots.indexOfFirst { it.itemId == sniperSnapshot.itemId }
-        if (existingIndex == -1) {
-            currentSnapshots += sniperSnapshot
-        } else {
-            currentSnapshots[existingIndex] = sniperSnapshot
-        }
-    }
 }
 
 private fun connectTo(hostname: String, port: Int, username: String, password: String): XMPPTCPConnection {

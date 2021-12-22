@@ -4,16 +4,21 @@ class ApplicationRunner(private val auctionServer: FakeAuctionServer) {
     private val driver = AuctionSniperDriver()
 
     fun startBiddingIn(auctions: List<FakeAuction>) {
-        driver.openWindow(auctionServer.hostname,
+        startSniper()
+
+        for (auction in auctions) {
+            driver.startBiddingFor(auction.itemId)
+            driver.showsSniperStatus(auction.itemId, SniperStatus.JOINING)
+        }
+    }
+
+    private fun startSniper() {
+        driver.openWindow(
+            auctionServer.hostname,
             auctionServer.port.toString(),
             auctionServer.sniperUserName,
             auctionServer.sniperPassword,
-            *auctions.map { it.itemId }.toTypedArray()
         )
-
-        for (auction in auctions) {
-            driver.showsSniperStatus(auction.itemId, SniperStatus.JOINING)
-        }
     }
 
     fun stop() {

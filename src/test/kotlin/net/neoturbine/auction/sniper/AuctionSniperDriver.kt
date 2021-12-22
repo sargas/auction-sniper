@@ -31,4 +31,9 @@ class AuctionSniperDriver: FxRobot() {
                 .containsRow(itemId, expectedStatus, expectedLastPrice, expectedLastBid)
         }
     }
+
+    fun startBiddingFor(itemId: String) {
+        clickOn(lookup("#newItemId")?.queryTextInputControl()).write(itemId)
+        clickOn(lookup("#joinButton")?.queryButton())
+    }
 }
