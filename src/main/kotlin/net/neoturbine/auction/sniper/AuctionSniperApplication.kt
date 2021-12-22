@@ -26,12 +26,14 @@ class AuctionSniperApplication: App(RootView::class) {
     override fun onBeforeShow(view: UIComponent) {
         rootView = view as RootView
         val ui = rootView ?: throw IllegalStateException("")
-        runAsync {
-            joinAuction(
-                connection = connection,
-                itemId = parameters.raw[4],
-                ui = ui
-            )
+        parameters.raw.drop(4).forEach { itemId: String ->
+            runAsync {
+                joinAuction(
+                    connection = connection,
+                    itemId = itemId,
+                    ui = ui
+                )
+            }
         }
     }
 
@@ -50,15 +52,16 @@ private class TornadoFxSniperListener(private val listener: SniperListener) : Sn
 private fun joinAuction(connection: XMPPConnection, itemId: String, ui: SniperListener) {
     val chatManager = ChatManager.getInstanceFor(connection)
     val auctionJid = JidCreate.entityBareFrom("auction-$itemId@localhost")
-    val auction = XMPPAuction(chatManager.chatWith(auctionJid))
+    val chat = chatManager.chatWith(auctionJid)
+    val auction = XMPPAuction(chat)
 
     val sniper = AuctionSniper(itemId, auction, TornadoFxSniperListener(ui))
-    chatManager.addIncomingListener(
+    chatManager.addIncomingListener(ChatSpecificListener(auctionJid,
         AuctionMessageTranslator(
             connection.user.asEntityBareJid(),
             sniper
         )
-    )
+    ))
     auction.join()
 }
 
@@ -79,10 +82,11 @@ class RootView: View(), SniperListener {
     }
 
     override fun sniperStateChange(sniperSnapshot: SniperSnapshot) {
-        if (currentSnapshots.isEmpty()) {
+        val existingIndex = currentSnapshots.indexOfFirst { it.itemId == sniperSnapshot.itemId }
+        if (existingIndex == -1) {
             currentSnapshots += sniperSnapshot
         } else {
-            currentSnapshots[0] = sniperSnapshot
+            currentSnapshots[existingIndex] = sniperSnapshot
         }
     }
 }

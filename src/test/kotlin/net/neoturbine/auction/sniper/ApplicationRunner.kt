@@ -3,14 +3,17 @@ package net.neoturbine.auction.sniper
 class ApplicationRunner(private val auctionServer: FakeAuctionServer) {
     private val driver = AuctionSniperDriver()
 
-    fun startBiddingIn(auction: FakeAuction) {
+    fun startBiddingIn(auctions: List<FakeAuction>) {
         driver.openWindow(auctionServer.hostname,
             auctionServer.port.toString(),
             auctionServer.sniperUserName,
             auctionServer.sniperPassword,
-            auction.itemId
+            *auctions.map { it.itemId }.toTypedArray()
         )
-        driver.showsSniperStatus(auction.itemId, SniperStatus.JOINING)
+
+        for (auction in auctions) {
+            driver.showsSniperStatus(auction.itemId, SniperStatus.JOINING)
+        }
     }
 
     fun stop() {

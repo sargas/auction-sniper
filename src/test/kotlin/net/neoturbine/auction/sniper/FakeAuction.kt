@@ -22,6 +22,7 @@ class FakeAuction(val itemId: String, private val auctionServer: FakeAuctionServ
         .setResource("AuctionTest")
         .setSecurityMode(ConnectionConfiguration.SecurityMode.disabled)
         .build())
+    private val messageListener = SimpleMessageListener()
 
     private val chat = ChatManager.getInstanceFor(connection)
         .chatWith(JidCreate.entityBareFrom("${auctionServer.sniperUserName}@localhost"))
@@ -31,11 +32,11 @@ class FakeAuction(val itemId: String, private val auctionServer: FakeAuctionServ
 
         connection.connect()
         connection.login()
-        ChatManager.getInstanceFor(connection).addIncomingListener(SimpleMessageListener)
+        ChatManager.getInstanceFor(connection).addIncomingListener(messageListener)
     }
 
     fun hasReceivedJoinRequestFromSniper() {
-        SimpleMessageListener.receivesAMessage {
+        messageListener.receivesAMessage {
             assertThat(body).isEqualTo(joinCommand())
             assertThat(from.asBareJid()).isEqualTo(auctionServer.sniperId)
         }
@@ -54,14 +55,14 @@ class FakeAuction(val itemId: String, private val auctionServer: FakeAuctionServ
     }
 
     fun hasReceivedBid(amount: Int, jid: CharSequence) {
-        SimpleMessageListener.receivesAMessage {
+        messageListener.receivesAMessage {
             assertThat(body).isEqualTo(bidCommand(amount))
             assertThat(from.asBareJid()).isEqualTo(jid)
         }
     }
 }
 
-object SimpleMessageListener: IncomingChatMessageListener {
+class SimpleMessageListener: IncomingChatMessageListener {
     private val messages = ArrayBlockingQueue<Message>(1)
     override fun newIncomingMessage(from: EntityBareJid?, message: Message?, chat: Chat?) {
         messages += message
