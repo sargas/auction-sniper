@@ -4,7 +4,10 @@ import javafx.collections.ObservableList
 import net.neoturbine.auction.sniper.*
 import tornadofx.*
 
-const val AUCTION_TABLE = "auctionTableId"
+const val AUCTION_TABLE_ID = "auctionTableId"
+const val NEW_ITEM_TEXT_FIELD_ID = "newItemId"
+const val STOP_PRICE_TEXT_FIELD = "stopPriceId"
+const val JOIN_BUTTON_ID = "joinButtonId"
 
 /**
  * The "MainWindow" class in Growing Object-Oriented Software
@@ -17,27 +20,33 @@ class RootView: View(), SniperListener, PortfolioListener {
     override val root = vbox {
         hbox {
             val newItemId = textfield {
-                id = "newItemId"
+                id = NEW_ITEM_TEXT_FIELD_ID
+                promptText = "New Item Id"
+            }
+            val stopPrice = textfield {
+                id = STOP_PRICE_TEXT_FIELD
+                promptText = "Stop Price (USD)"
             }
             button {
-                id = "joinButton"
+                id = JOIN_BUTTON_ID
                 text = "Join Auction"
                 action {
                     listeners.forEach {
-                        it.joinAuction(newItemId.text)
+                        it.joinAuction(Item(identifier = newItemId.text, stopPrice = stopPrice.text.toInt()))
                         newItemId.clear()
+                        stopPrice.clear()
                     }
                 }
             }
         }
         tableview(currentSnapshots) {
-            id = AUCTION_TABLE
+            id = AUCTION_TABLE_ID
             readonlyColumn("Item ID", SniperSnapshot::itemId)
             readonlyColumn("Status", SniperSnapshot::status) {
                 cellFormat { text = it.name }
             }
-            readonlyColumn("Last Price", SniperSnapshot::lastPrice)
-            readonlyColumn("Bid Price", SniperSnapshot::lastBid)
+            readonlyColumn("Last Price (USD)", SniperSnapshot::lastPrice)
+            readonlyColumn("Bid Price (USD)", SniperSnapshot::lastBid)
         }
     }
 

@@ -24,7 +24,7 @@ TO-DO
 - [x] Single item - show price details (UI)
 - [x] Multiple Items
 - [x] Add New Items in UI
-- [ ] Stop Bidding at stop price
+- [x] Stop Bidding at stop price
 - [ ] translator - invalid message from Auction
 - [ ] translator - incorrect message version
 - [ ] auction - handle `XMPPException` on send

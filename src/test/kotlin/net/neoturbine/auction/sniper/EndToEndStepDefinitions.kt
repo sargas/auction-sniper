@@ -30,6 +30,10 @@ class EndToEndStepDefinitions : En {
             application.startBiddingIn(table.transpose().column(0).mapNotNull { auctions[it] })
         }
 
+        When("we start bidding for item {string} with stop price {int} USD") { itemId: String, stopPrice: Int ->
+            application.startBiddingIn(listOf(auctions[itemId]!!), stopPrice=stopPrice)
+        }
+
         Then("server receives join request from sniper for item {string}") { itemId: String ->
             auctions[itemId]!!.hasReceivedJoinRequestFromSniper()
         }
@@ -44,6 +48,8 @@ class EndToEndStepDefinitions : En {
             val bidder = when(bidderName) {
                 "we" -> auctionServer.sniperId.toString()
                 "another bidder" -> "someone@else"
+                "a third bidder" -> "third@someone.else"
+                "a fourth bidder" -> "fourth@someone.else"
                 else -> error("Unknown bidder: $bidderName")
             }
             auctions[itemId]!!.reportPrice(highestBid, increment, bidder)

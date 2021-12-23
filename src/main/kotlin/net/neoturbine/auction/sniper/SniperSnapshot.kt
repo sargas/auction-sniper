@@ -17,6 +17,9 @@ data class SniperSnapshot(
     fun closed() =
         SniperSnapshot(itemId, status.whenAuctionClosed(), lastPrice, lastBid)
 
+    fun losing(newLastPrice: Int) =
+        SniperSnapshot(itemId, SniperStatus.LOSING, newLastPrice, lastBid)
+
     companion object {
         fun joining(itemId: String) =
             SniperSnapshot(itemId, SniperStatus.JOINING)

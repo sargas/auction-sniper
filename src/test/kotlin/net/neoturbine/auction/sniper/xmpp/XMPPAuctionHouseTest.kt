@@ -3,6 +3,7 @@ package net.neoturbine.auction.sniper.xmpp
 import net.neoturbine.auction.sniper.AuctionEventListener
 import net.neoturbine.auction.sniper.FakeAuction
 import net.neoturbine.auction.sniper.FakeAuctionServer
+import net.neoturbine.auction.sniper.Item
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
@@ -32,7 +33,7 @@ internal class XMPPAuctionTest {
     fun `Receives Events From Auction Server After Joining`() {
         val auctionWasClosed = CountDownLatch(1)
 
-        val auction = auctionHouse.auctionFor(ITEM_ID)
+        val auction = auctionHouse.auctionFor(Item(ITEM_ID, Int.MAX_VALUE))
         auction.addListener(object: AuctionEventListener {
             override fun auctionClosed() {
                 auctionWasClosed.countDown()

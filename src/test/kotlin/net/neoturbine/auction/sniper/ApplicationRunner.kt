@@ -3,11 +3,11 @@ package net.neoturbine.auction.sniper
 class ApplicationRunner(private val auctionServer: FakeAuctionServer) {
     private val driver = AuctionSniperDriver()
 
-    fun startBiddingIn(auctions: List<FakeAuction>) {
+    fun startBiddingIn(auctions: List<FakeAuction>, stopPrice: Int = Int.MAX_VALUE) {
         startSniper()
 
         for (auction in auctions) {
-            driver.startBiddingFor(auction.itemId)
+            driver.startBiddingFor(auction.itemId, stopPrice)
             driver.showsSniperStatus(auction.itemId, SniperStatus.JOINING)
         }
     }

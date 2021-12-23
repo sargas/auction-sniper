@@ -1,6 +1,6 @@
 package net.neoturbine.auction.sniper
 
 interface AuctionHouse {
-    fun auctionFor(itemId: String) : Auction
+    fun auctionFor(item: Item) : Auction
     fun disconnect()
 }

@@ -4,6 +4,7 @@ import io.mockk.*
 import javafx.scene.Scene
 import javafx.stage.Stage
 import net.neoturbine.auction.sniper.AuctionSniperDriver
+import net.neoturbine.auction.sniper.Item
 import net.neoturbine.auction.sniper.UserRequestListener
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -14,6 +15,7 @@ import org.testfx.framework.junit5.Stop
 import tornadofx.*
 
 private const val ITEM_ID = "an-item-id"
+private const val STOP_PRICE = 412
 
 @ExtendWith(ApplicationExtension::class)
 internal class RootViewTest {
@@ -40,10 +42,10 @@ internal class RootViewTest {
         every { listener.joinAuction(any()) } just runs
 
         rootView.addUserRequestListener(listener)
-        driver.startBiddingFor(ITEM_ID)
+        driver.startBiddingFor(ITEM_ID, STOP_PRICE)
 
         verifyAll {
-            listener.joinAuction(ITEM_ID)
+            listener.joinAuction(Item(ITEM_ID, STOP_PRICE))
         }
     }
 }

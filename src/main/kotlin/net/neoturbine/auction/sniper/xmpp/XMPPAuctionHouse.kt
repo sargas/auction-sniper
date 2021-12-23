@@ -2,13 +2,14 @@ package net.neoturbine.auction.sniper.xmpp
 
 import net.neoturbine.auction.sniper.Auction
 import net.neoturbine.auction.sniper.AuctionHouse
+import net.neoturbine.auction.sniper.Item
 import org.jivesoftware.smack.ConnectionConfiguration
 import org.jivesoftware.smack.tcp.XMPPTCPConnection
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration
 
 class XMPPAuctionHouse(private var connection: XMPPTCPConnection) : AuctionHouse {
-    override fun auctionFor(itemId: String): Auction {
-        return XMPPAuction(connection, itemId)
+    override fun auctionFor(item: Item): Auction {
+        return XMPPAuction(connection, item.identifier)
     }
 
     override fun disconnect() {

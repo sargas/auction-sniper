@@ -6,10 +6,10 @@ class SniperLauncher(private val auctionHouse: AuctionHouse, private val collect
     companion object {
         private val logger = logger()
     }
-    override fun joinAuction(itemId: String) {
-        logger.info {"Joining auction for $itemId" }
-        val auction = auctionHouse.auctionFor(itemId = itemId)
-        val sniper = AuctionSniper(itemId = itemId, auction = auction) //, listener = TornadoFxSniperListener(ui))
+    override fun joinAuction(item: Item) {
+        logger.info {"Joining auction for $item" }
+        val auction = auctionHouse.auctionFor(item)
+        val sniper = AuctionSniper(item=item, auction = auction) //, listener = TornadoFxSniperListener(ui))
         collector.addSniper(sniper)
         auction.addListener(sniper)
         auction.join()

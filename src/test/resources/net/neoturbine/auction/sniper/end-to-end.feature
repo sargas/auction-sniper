@@ -63,3 +63,22 @@ Feature: Auction Sniper End-to-End tests
     And the auction for item "321" closes
     Then we show the auction for item "123" as WON having the winning bid 1098 with our last bid 1098
     And we show the auction for item "321" as WON having the winning bid 521 with our last bid 521
+
+  Scenario: Sniper loses an auction when the price is too high
+    Given an auction for item "123" has started
+
+    When we start bidding for item "123" with stop price 1100 USD
+    Then server receives join request from sniper for item "123"
+
+    When the auction for "123" reports another bidder has the highest bid at 1000 USD with an increment of 98 USD
+    Then we show the auction for item "123" as BIDDING having the winning bid 1000 with our last bid 1098
+    And the sniper places a bid on "123" for 1098 USD
+
+    When the auction for "123" reports a third bidder has the highest bid at 1197 USD with an increment of 10 USD
+    Then we show the auction for item "123" as LOSING having the winning bid 1197 with our last bid 1098
+
+    When the auction for "123" reports a fourth bidder has the highest bid at 1207 USD with an increment of 10 USD
+    Then we show the auction for item "123" as LOSING having the winning bid 1207 with our last bid 1098
+
+    When the auction for item "123" closes
+    Then we show the auction for item "123" as LOST having the winning bid 1207 with our last bid 1098
