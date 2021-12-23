@@ -1,6 +1,7 @@
 package net.neoturbine.auction.sniper
 
 import javafx.application.Application
+import net.neoturbine.auction.sniper.ui.AUCTION_TABLE
 import org.awaitility.kotlin.await
 import org.awaitility.kotlin.untilAsserted
 import org.testfx.api.FxRobot

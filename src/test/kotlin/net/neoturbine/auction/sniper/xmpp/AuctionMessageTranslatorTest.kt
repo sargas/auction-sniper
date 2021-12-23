@@ -1,6 +1,7 @@
-package net.neoturbine.auction.sniper
+package net.neoturbine.auction.sniper.xmpp
 
 import io.mockk.*
+import net.neoturbine.auction.sniper.AuctionEventListener
 import net.neoturbine.auction.sniper.AuctionEventListener.PriceSource
 import org.jivesoftware.smack.chat2.Chat
 import org.jivesoftware.smack.packet.StanzaBuilder
@@ -14,7 +15,7 @@ private val SNIPER_ID = JidCreate.entityBareFrom("test@localhost")
 
 internal class AuctionMessageTranslatorTest {
     private val listener = mockk<AuctionEventListener>()
-    private val translator = AuctionMessageTranslator(SNIPER_ID, listener)
+    private val translator = AuctionMessageTranslator(SNIPER_ID).apply { addListener(listener) }
 
     @Test
     fun notifiesAuctionClosedWhenCloseMessageReceived() {

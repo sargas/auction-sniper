@@ -1,5 +1,6 @@
 package net.neoturbine.auction.sniper
 
+import org.apache.logging.log4j.kotlin.logger
 import org.jxmpp.jid.EntityBareJid
 import org.jxmpp.jid.impl.JidCreate
 import org.testcontainers.containers.GenericContainer
@@ -12,6 +13,10 @@ private const val SNIPER_ID = "sniper"
 private const val SNIPER_PASSWORD = "sniper"
 
 class FakeAuctionServer {
+    companion object {
+        private val logger = logger()
+    }
+
     private val xmppServer = GenericContainer(EJABBERD_IMAGE)
         .withExposedPorts(EJABBERD_PORT)
         .waitingFor(Wait.forLogMessage(".*Start accepting TCP connections at .::.:5222 for ejabberd_c2s.*\\n", 1))
@@ -27,7 +32,9 @@ class FakeAuctionServer {
     val passwordForItem = SNIPER_PASSWORD
 
     fun start() {
+        logger.info { "Starting XMPP server" }
         xmppServer.start()
+        logger.info { "Registering sniper account and disabling TLS" }
         xmppServer.execInContainer("bin/ejabberdctl", "register", sniperUserName, "localhost", sniperPassword)
         xmppServer.execInContainer("sed", "-i", "s#starttls_required: true#starttls_required: false#", "conf/ejabberd.yml")
         xmppServer.execInContainer("bin/ejabberdctl", "restart")
@@ -35,10 +42,12 @@ class FakeAuctionServer {
     }
 
     fun stop() {
+        logger.info { "Stopping XMPP server server" }
         xmppServer.stop()
     }
 
     fun createAccountForItem(itemId: String) {
+        logger.info { "Creating account for auction $itemId" }
         xmppServer.execInContainer("bin/ejabberdctl", "register", userNameForItem(itemId), "localhost", passwordForItem)
     }
 

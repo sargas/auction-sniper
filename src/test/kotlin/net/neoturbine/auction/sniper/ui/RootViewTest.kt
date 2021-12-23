@@ -1,8 +1,10 @@
-package net.neoturbine.auction.sniper
+package net.neoturbine.auction.sniper.ui
 
 import io.mockk.*
 import javafx.scene.Scene
 import javafx.stage.Stage
+import net.neoturbine.auction.sniper.AuctionSniperDriver
+import net.neoturbine.auction.sniper.UserRequestListener
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.testfx.api.FxToolkit

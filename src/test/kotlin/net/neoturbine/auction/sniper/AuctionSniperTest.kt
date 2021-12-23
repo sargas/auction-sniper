@@ -18,7 +18,7 @@ internal class AuctionSniperTest {
     private val auction = mockk<Auction>(relaxed = true)
     private val listener = mockk<SniperListener>(relaxed = true)
 
-    private val sniper = AuctionSniper(itemId, auction, listener)
+    private val sniper = AuctionSniper(itemId, auction).apply { addSniperListener(listener) }
 
     @Test
     fun reportsLostWhenAuctionClosedImmediately() {

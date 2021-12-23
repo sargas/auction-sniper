@@ -1,12 +1,15 @@
-package net.neoturbine.auction.sniper
+package net.neoturbine.auction.sniper.ui
 
 import javafx.collections.ObservableList
+import net.neoturbine.auction.sniper.*
 import tornadofx.*
+
+const val AUCTION_TABLE = "auctionTableId"
 
 /**
  * The "MainWindow" class in Growing Object-Oriented Software
  */
-class RootView: View(), SniperListener {
+class RootView: View(), SniperListener, PortfolioListener {
     private var currentSnapshots: ObservableList<SniperSnapshot> =
         mutableListOf<SniperSnapshot>().asObservable()
     private val listeners = mutableListOf<UserRequestListener>()
@@ -49,5 +52,10 @@ class RootView: View(), SniperListener {
 
     fun addUserRequestListener(listener: UserRequestListener) {
         listeners += listener
+    }
+
+    override fun addSniper(sniper: AuctionSniper) {
+        currentSnapshots += sniper.sniperSnapshot
+        sniper.addSniperListener(TornadoFxSniperListener(this))
     }
 }

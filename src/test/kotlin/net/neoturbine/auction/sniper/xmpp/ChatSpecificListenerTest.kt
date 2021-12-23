@@ -1,4 +1,4 @@
-package net.neoturbine.auction.sniper
+package net.neoturbine.auction.sniper.xmpp
 
 import com.github.javafaker.Faker
 import io.mockk.*

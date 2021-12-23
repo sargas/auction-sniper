@@ -1,4 +1,4 @@
-package net.neoturbine.auction.sniper
+package net.neoturbine.auction.sniper.xmpp
 
 import org.jivesoftware.smack.chat2.Chat
 import org.jivesoftware.smack.chat2.IncomingChatMessageListener

@@ -1,20 +1,33 @@
-package net.neoturbine.auction.sniper
+package net.neoturbine.auction.sniper.xmpp
 
+import net.neoturbine.auction.sniper.AuctionEventListener
 import net.neoturbine.auction.sniper.AuctionEventListener.PriceSource
+import org.apache.logging.log4j.kotlin.logger
 import org.jivesoftware.smack.chat2.Chat
 import org.jivesoftware.smack.chat2.IncomingChatMessageListener
 import org.jivesoftware.smack.packet.Message
 import org.jxmpp.jid.EntityBareJid
 import org.jxmpp.jid.impl.JidCreate
 
-class AuctionMessageTranslator(private val sniperJid: EntityBareJid, private val listener: AuctionEventListener) : IncomingChatMessageListener {
+class AuctionMessageTranslator(private val sniperJid: EntityBareJid) : IncomingChatMessageListener {
+    companion object {
+        private val logger = logger()
+    }
+    private val listeners = mutableListOf<AuctionEventListener>()
+
     override fun newIncomingMessage(from: EntityBareJid?, message: Message?, chat: Chat?) {
         val event = AuctionEvent(message)
+        logger.info { "Received $event" }
         if ("CLOSE" == event.eventType) {
-            listener.auctionClosed()
+            listeners.forEach { it.auctionClosed() }
         } else if ("PRICE" == event.eventType) {
-            listener.currentPrice(event.currentPrice, event.increment, event.isFrom(sniperJid))
+            listeners.forEach { it.currentPrice(event.currentPrice, event.increment, event.isFrom(sniperJid)) }
         }
+    }
+
+    fun addListener(listener: AuctionEventListener) {
+        logger.info { "Adding $listener to listeners"}
+        listeners += listener
     }
 }
 
@@ -35,4 +48,9 @@ class AuctionEvent(message: Message?) {
             PriceSource.FromSniper
         } else
             PriceSource.FromOtherBidder
+
+    override fun toString(): String {
+        return "AuctionEvent(fields='$fields')"
+    }
+
 }
